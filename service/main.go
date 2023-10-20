@@ -1,10 +1,21 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	pb "service/proto"
 
 	"github.com/Ullaakut/nmap"
 )
+
+// server is used to implement proto.NetVulnServiceServer.
+type server struct {
+	pb.UnimplementedNetVulnServiceServer
+}
+
+func (s *server) CheckVuln(ctx context.Context, req *pb.CheckVulnRequest) (*pb.CheckVulnResponse, error) {
+	return &pb.CheckVulnResponse{}, nil
+}
 
 func main() {
 	scanWithNmap("87.249.43.21")
@@ -43,7 +54,7 @@ func scanWithNmap(target string) error {
 				if script.ID == "vulners" {
 					for _, table := range script.Tables {
 						for _, vulnElement := range table.Tables {
-							identifier := vulnElement.Elements[3].Value
+							identifier := vulnElement.Elements[1].Value
 							cvss_score := vulnElement.Elements[0].Value
 							fmt.Printf("\t– %v %v\n", identifier, cvss_score)
 						}
