@@ -4,7 +4,7 @@ This repository provides you simple gRPC server that scans given targets ports w
 
 ## User guide
 ### Server
-1. Add environment variables or add `.env` file
+1. Add environment variables or add `.env` file.  
     Example `.env` content:  
     ```
     NETWORK="tcp"
