@@ -4,6 +4,7 @@ import (
 	"grpc-nmap-vulners/pkg/proto"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/Ullaakut/nmap"
 )
@@ -30,9 +31,6 @@ func requestScanWithNmap(req *proto.CheckVulnRequest) (*proto.CheckVulnResponse,
 // ScanWithNmap function to run nmap w/ vulners.nse for provided
 // target IPs and ports
 func ScanWithNmap(targets []string, ports string) (*proto.CheckVulnResponse, error) {
-	response := &proto.CheckVulnResponse{
-		Results: []*proto.TargetResult{},
-	}
 	scanner, err := nmap.NewScanner(
 		nmap.WithTargets(targets...),
 		nmap.WithServiceInfo(),
@@ -49,43 +47,87 @@ func ScanWithNmap(targets []string, ports string) (*proto.CheckVulnResponse, err
 		return nil, err
 	}
 
-	for _, host := range result.Hosts {
-		hostResult := &proto.TargetResult{
-			Target:   host.Addresses[0].String(),
-			Services: []*proto.Service{},
-		}
+	response := &proto.CheckVulnResponse{
+		Results: []*proto.TargetResult{},
+	}
+	parseHostsToResponse(response, result.Hosts)
 
-		for _, port := range host.Ports {
-			portResult := &proto.Service{
-				Name:    "default",
-				Version: "default",
-				TcpPort: int32(port.ID),
-				Vulns:   []*proto.Vulnerability{},
-			}
+	return response, nil
+}
 
-			for _, script := range port.Scripts {
-				if script.ID == "vulners" {
-					for _, table := range script.Tables {
-						for _, vulnElement := range table.Tables {
-							cvssScore, err := strconv.ParseFloat(vulnElement.Elements[0].Value, 32)
-							if err != nil {
-								continue
-							}
+func parseHostsToResponse(response *proto.CheckVulnResponse, hosts []nmap.Host) {
+	wg := &sync.WaitGroup{}
+	mu := &sync.Mutex{}
+	for _, host := range hosts {
+		wg.Add(1)
+		go func(host *nmap.Host) {
+			defer wg.Done()
+			parseHostToResponse(response, host, mu)
+		}(&host)
+	}
+	wg.Wait()
+}
 
-							vulnResult := &proto.Vulnerability{
-								Identifier: vulnElement.Elements[1].Value,
-								CvssScore:  float32(cvssScore),
-							}
-							portResult.Vulns = append(portResult.Vulns, vulnResult)
-						}
+func parseHostToResponse(response *proto.CheckVulnResponse, host *nmap.Host, mu *sync.Mutex) {
+	hostResult := &proto.TargetResult{
+		Target:   host.Addresses[0].String(),
+		Services: []*proto.Service{},
+	}
+
+	wg := &sync.WaitGroup{}
+	for _, port := range host.Ports {
+		wg.Add(1)
+		go func(port *nmap.Port) {
+			defer wg.Done()
+			parsePortToResult(hostResult, port, mu)
+		}(&port)
+	}
+	wg.Wait()
+
+	mu.Lock()
+	response.Results = append(response.Results, hostResult)
+	mu.Unlock()
+}
+
+func parsePortToResult(result *proto.TargetResult, port *nmap.Port, mu *sync.Mutex) {
+	portResult := &proto.Service{
+		Name:    port.Service.Name,
+		Version: port.Service.Version,
+		TcpPort: int32(port.ID),
+		Vulns:   []*proto.Vulnerability{},
+	}
+
+	for _, script := range port.Scripts {
+		if script.ID == "vulners" {
+			for _, table := range script.Tables {
+				for _, vulnElement := range table.Tables {
+					cvssScore, err := strconv.ParseFloat(vulnFind(vulnElement.Elements, "cvss"), 32)
+					if err != nil {
+						continue
 					}
-					break
+
+					vulnResult := &proto.Vulnerability{
+						Identifier: vulnFind(vulnElement.Elements, "id"),
+						CvssScore:  float32(cvssScore),
+					}
+					mu.Lock()
+					portResult.Vulns = append(portResult.Vulns, vulnResult)
+					mu.Unlock()
 				}
 			}
-
-			hostResult.Services = append(hostResult.Services, portResult)
+			break
 		}
-		response.Results = append(response.Results, hostResult)
 	}
-	return response, nil
+	mu.Lock()
+	result.Services = append(result.Services, portResult)
+	mu.Unlock()
+}
+
+func vulnFind(elements []nmap.Element, targetKey string) string {
+	for _, element := range elements {
+		if element.Key == targetKey {
+			return element.Value
+		}
+	}
+	return ""
 }
