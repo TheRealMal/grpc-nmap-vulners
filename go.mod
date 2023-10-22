@@ -1,4 +1,4 @@
-module service
+module grpc-nmap-vulners
 
 go 1.21.1
 

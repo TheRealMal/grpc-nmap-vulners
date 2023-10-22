@@ -1,0 +1,40 @@
+
+run:
+  timeout: 5m
+  modules-download-mode: readonly
+
+linters-settings:
+  revive:
+    checks:
+      - all
+    confidence: 0.8
+  stylecheck:
+    checks:
+      - all
+      - '-ST1000' # disable
+linters:
+  enable:
+    - goconst
+    - gocritic
+    - gocyclo
+    - gosimple
+    - ineffassign
+    - nakedret
+    - prealloc
+    - stylecheck
+    - typecheck
+    - unconvert
+    - unparam
+    - errcheck
+    - goimports
+    - revive
+    - govet
+    - staticcheck
+    - unused
+
+issues:
+  exclude-use-default: false
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  exclude:
+    - ""

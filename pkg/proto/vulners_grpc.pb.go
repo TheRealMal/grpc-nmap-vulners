@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v4.24.4
-// source: vuln.proto
+// source: api/vulners.proto
 
 package proto
 
@@ -101,5 +101,5 @@ var NetVulnService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "vuln.proto",
+	Metadata: "api/vulners.proto",
 }
