@@ -13,9 +13,6 @@ func requestScanWithNmap(req *proto.CheckVulnRequest) (*proto.CheckVulnResponse,
 	ports := strings.Builder{}
 	for _, port := range req.TcpPort {
 		portString := strconv.FormatInt(int64(port), 10)
-		if len(portString) == 0 {
-			continue
-		}
 		ports.WriteString(portString)
 		ports.WriteString(",")
 	}
