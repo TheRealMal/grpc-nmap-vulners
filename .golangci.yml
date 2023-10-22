@@ -11,7 +11,12 @@ linters-settings:
   stylecheck:
     checks:
       - all
-      - '-ST1000' # disable
+      - '-ST1000'
+  staticcheck:
+    checks:
+      - all
+      - '-SA5011'
+
 linters:
   enable:
     - goconst

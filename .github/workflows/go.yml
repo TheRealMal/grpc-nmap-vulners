@@ -27,7 +27,7 @@ jobs:
         uses: golangci/golangci-lint-action@v3
         with:
           version: v1.54
-          
+
   go-tests:
     runs-on: ubuntu-latest
     steps:
@@ -42,6 +42,9 @@ jobs:
       - name: Verify dependencies
         run: go mod verify
 
+      - name: Install modules
+        run: go mod download
+        
       - name: Build
         run: go build -v ./...
 

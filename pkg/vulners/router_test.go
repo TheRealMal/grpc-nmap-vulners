@@ -28,7 +28,11 @@ func TestStartServer(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to connect to gRPC server: %v", err)
 	}
-	defer conn.Close()
+	defer func() {
+		if err := conn.Close(); err != nil {
+			t.Fatalf("Failed to close connection: %v", err)
+		}
+	}()
 	client := proto.NewNetVulnServiceClient(conn)
 
 	req := &proto.CheckVulnRequest{

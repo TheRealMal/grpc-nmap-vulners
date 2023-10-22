@@ -18,6 +18,7 @@ func TestScanWithNmap(t *testing.T) {
 	if response == nil {
 		t.Error("ScanWithNmap response is nil")
 	}
+
 	assert.Equal(t, response.Results[0].Target, "127.0.0.1")
 	if response.Results[0].Services[0].TcpPort == 443 {
 		assert.Equal(t, response.Results[0].Services[0].Name, "https")
