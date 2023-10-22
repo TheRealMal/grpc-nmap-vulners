@@ -3,9 +3,18 @@ package main
 import (
 	"grpc-nmap-vulners/pkg/vulners"
 	"log"
+	"os"
 )
 
 func main() {
-	response, err := vulners.ScanWithNmap([]string{"87.249.43.21"}, "22,")
-	log.Printf("%v\n%v\n", response, err)
+	args := os.Args
+	if len(args) != 3 {
+		log.Fatal("failed to parse arguments")
+	}
+
+	response, err := vulners.ScanWithNmap([]string{args[1]}, args[2])
+	if err != nil {
+		log.Fatalf("failed to scan: %v\n", err)
+	}
+	log.Printf("%v\n", response)
 }
