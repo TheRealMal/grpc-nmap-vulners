@@ -1,6 +1,10 @@
 # gRPC nmap vulners
 This repository provides you simple gRPC server that scans given targets ports with [nmap-vulners](https://github.com/vulnersCom/nmap-vulners). 
-> You must have nmap vulners.nse script installed [(Click)](https://github.com/vulnersCom/nmap-vulners#installation)
+> You must have nmap vulners.nse script installed [(Click)](https://github.com/vulnersCom/nmap-vulners#installation).  
+
+<p align="center">
+  <img src="assets/example.png" width="512"/>
+</p>  
 
 ## User guide
 ### Server
@@ -10,7 +14,7 @@ This repository provides you simple gRPC server that scans given targets ports w
     NETWORK="tcp"
     ADDRESS="127.0.0.1:8080"
     ```
-2. Run `go get ./...` to install all dependecies
+2. Run `go mod download` to install all dependecies
 3. Run `go build ./cmd/server/...` to build server binary file
 4. Run file that you just built (`./server`)
 
