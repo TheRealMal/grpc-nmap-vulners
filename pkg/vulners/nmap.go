@@ -57,10 +57,10 @@ func parseHostsToResponse(response *proto.CheckVulnResponse, hosts []nmap.Host) 
 	mu := &sync.Mutex{}
 	for _, host := range hosts {
 		wg.Add(1)
-		go func(host *nmap.Host) {
+		go func(host nmap.Host) {
 			defer wg.Done()
-			parseHostToResponse(response, host, mu)
-		}(&host)
+			parseHostToResponse(response, &host, mu)
+		}(host)
 	}
 	wg.Wait()
 }
@@ -74,10 +74,10 @@ func parseHostToResponse(response *proto.CheckVulnResponse, host *nmap.Host, mu 
 	wg := &sync.WaitGroup{}
 	for _, port := range host.Ports {
 		wg.Add(1)
-		go func(port *nmap.Port) {
+		go func(port nmap.Port) {
 			defer wg.Done()
-			parsePortToResult(hostResult, port, mu)
-		}(&port)
+			parsePortToResult(hostResult, &port, mu)
+		}(port)
 	}
 	wg.Wait()
 

@@ -43,4 +43,5 @@ func StartServer(network string, address string, customLogget *log.Logger, logLe
 	if err := grpcServer.Serve(l); err != nil {
 		customLogget.Fatalf("[CRITICAL] failed to serve: %v", err)
 	}
+	grpcServer.Stop()
 }

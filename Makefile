@@ -18,6 +18,9 @@ lint:
 	golangci-lint -c $(DIR)/.golangci.yml run $(DIR)/cmd/$(CLI)/...
 	golangci-lint -c $(DIR)/.golangci.yml run $(DIR)/cmd/$(SERVER)/...
 
+test:
+	go test ./...
+
 clean:
 	rm ./$(SERVER)
 
