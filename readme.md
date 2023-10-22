@@ -4,9 +4,15 @@ This repository provides you simple gRPC server that scans given targets ports w
 
 ## User guide
 ### Server
-1. Run `go get ./...` to install all dependecies
-2. Run `go build ./cmd/server/...` to build server binary file
-3. Run file that you just built (`./server`)
+1. Add environment variables or add `.env` file
+    Example `.env` content:  
+    ```
+    NETWORK="tcp"
+    ADDRESS="127.0.0.1:8080"
+    ```
+2. Run `go get ./...` to install all dependecies
+3. Run `go build ./cmd/server/...` to build server binary file
+4. Run file that you just built (`./server`)
 
 ### Client
 1. Install [Evans](https://github.com/ktr0731/evans#installation)
