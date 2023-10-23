@@ -96,28 +96,32 @@ func parsePortToResult(result *proto.TargetResult, port *nmap.Port, mu *sync.Mut
 
 	for _, script := range port.Scripts {
 		if script.ID == "vulners" {
-			for _, table := range script.Tables {
-				for _, vulnElement := range table.Tables {
-					cvssScore, err := strconv.ParseFloat(vulnFind(vulnElement.Elements, "cvss"), 32)
-					if err != nil {
-						continue
-					}
-
-					vulnResult := &proto.Vulnerability{
-						Identifier: vulnFind(vulnElement.Elements, "id"),
-						CvssScore:  float32(cvssScore),
-					}
-					mu.Lock()
-					portResult.Vulns = append(portResult.Vulns, vulnResult)
-					mu.Unlock()
-				}
-			}
+			parseVulnsScript(script.Tables, mu, portResult)
 			break
 		}
 	}
 	mu.Lock()
 	result.Services = append(result.Services, portResult)
 	mu.Unlock()
+}
+
+func parseVulnsScript(tables []nmap.Table, mu *sync.Mutex, portResult *proto.Service) {
+	for _, table := range tables {
+		for _, vulnElement := range table.Tables {
+			cvssScore, err := strconv.ParseFloat(vulnFind(vulnElement.Elements, "cvss"), 32)
+			if err != nil {
+				continue
+			}
+
+			vulnResult := &proto.Vulnerability{
+				Identifier: vulnFind(vulnElement.Elements, "id"),
+				CvssScore:  float32(cvssScore),
+			}
+			mu.Lock()
+			portResult.Vulns = append(portResult.Vulns, vulnResult)
+			mu.Unlock()
+		}
+	}
 }
 
 func vulnFind(elements []nmap.Element, targetKey string) string {
