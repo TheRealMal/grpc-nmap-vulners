@@ -1,6 +1,8 @@
 package vulners
 
 import (
+	"grpc-nmap-vulners/pkg/proto"
+	"sync"
 	"testing"
 
 	"github.com/Ullaakut/nmap"
@@ -46,4 +48,41 @@ func TestVulnFind(t *testing.T) {
 	result = vulnFind(elements, nonExistentKey)
 	expectedResult = ""
 	assert.Equal(t, result, expectedResult)
+}
+
+func TestParseVulnsScript(t *testing.T) {
+	mu := &sync.Mutex{}
+	testResult := &proto.Service{
+		Name:    "test",
+		Version: "test",
+		TcpPort: int32(0),
+		Vulns:   []*proto.Vulnerability{},
+	}
+	testTables := []nmap.Table{
+		{
+			Key: "testVulnTable",
+			Tables: []nmap.Table{
+				{
+					Key: "SomeVuln",
+					Elements: []nmap.Element{
+						{
+							Key:   "id",
+							Value: "SOME-VULN-ID",
+						},
+						{
+							Key:   "cvss",
+							Value: "5.0",
+						},
+						{
+							Key:   "uselessKey",
+							Value: "uselessVal",
+						},
+					},
+				},
+			},
+		},
+	}
+	parseVulnsScript(testTables, mu, testResult)
+	assert.Equal(t, testResult.Vulns[0].Identifier, "SOME-VULN-ID")
+	assert.Equal(t, testResult.Vulns[0].CvssScore, float32(5.0))
 }

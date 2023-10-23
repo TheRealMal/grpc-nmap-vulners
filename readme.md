@@ -26,12 +26,12 @@ This repository provides you simple gRPC server that scans given targets ports w
 ## Development
 ### Generate Go gRPC files
 ```console
-protoc --go_out=./pkg/ --go_opt=paths=source_relative --go-grpc_out=./pkg/ --go-grpc_opt=paths=source_relative ./api/vulners.proto
+make protoc-gen
 ```
 
 ### Build and run server
 ```console
-go build ./cmd/server/...
+make build
 ./server
 ```
 
@@ -39,6 +39,13 @@ go build ./cmd/server/...
 > test_target: `87.249.43.21`
 > test_ports: `22,`
 ```console
-go build ./cmd/cli/...
+make build-cli
 ./cli TARGET PORTS
+```
+
+### Generate golangci-lint & tests & coverage
+```
+make lint
+make test
+make coverage
 ```

@@ -2,3 +2,4 @@
 /server
 /cli
 .env
+/coverage.html

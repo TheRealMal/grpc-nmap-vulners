@@ -21,6 +21,11 @@ lint:
 test:
 	go test ./...
 
+coverage:
+	go test -coverprofile=cover.out ./...
+	go tool cover -html=cover.out -o coverage.html
+	rm cover.out
+
 clean:
 	rm ./$(SERVER)
 
@@ -31,3 +36,8 @@ build-cli:
 
 clean-cli:
 	rm ./$(CLI)
+
+# Protoc
+
+protoc-gen:
+protoc --go_out=./pkg/ --go_opt=paths=source_relative --go-grpc_out=./pkg/ --go-grpc_opt=paths=source_relative ./api/vulners.proto
