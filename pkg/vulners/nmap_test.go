@@ -51,7 +51,6 @@ func TestVulnFind(t *testing.T) {
 }
 
 func TestParseVulnsScript(t *testing.T) {
-	//tables []nmap.Table, mu *sync.Mutex, portResult *proto.Service
 	mu := &sync.Mutex{}
 	testResult := &proto.Service{
 		Name:    "test",
